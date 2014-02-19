@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="utf-8">
+	<script src="main.js"></script>
+	<style>
+		body,html{
+			padding:0;
+			margin:0;
+			height: 100%;
+			width: 100%;
+		}
+		.gsSlider{
+			height: 30px;
+			-webkit-touch-callout: none;
+			-webkit-user-select: none;
+			-khtml-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
+		.gsSlider_background{
+			position: absolute;
+			background: gray repeat-x;
+			height: 15px;
+			display: block;
+			overflow: hidden;
+			z-index: 1;
+			width: 100%;
+			top: 3px;
+			left: 0;
+			cursor: default;
+		}
+		.gsSlider_handle{
+			position: absolute;
+			display: block;
+			background: black;
+			z-index: 2;
+			width: 20px;
+			height: 20px;
+			overflow: hidden;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+	</style>
+</head>
+<body>
+	<div style="width: 500px;padding: 20px;">
+		<div id="slider1"></div>
+	</div>
+	<script>
+		var slider1 = new GSSlider({
+			max:10,
+			min:1,
+			step:1,
+			default:5,
+			id:'slider1',
+			onStart:function(par){
+				console.log('start');
+				console.log(par);
+				return true;
+			},
+			onUpdateValue:function(par){
+				console.log('updateValue');
+				console.log(par);
+			},
+			onClick:function(par){
+				console.log('click');
+				console.log(par);
+				return false;
+			},
+			onMove:function(par){
+				console.log('move');
+				console.log(par);
+				return true;
+			},
+			onEnd:function(par){
+				console.log('click');
+				console.log(par);
+				return true;
+			}
+		});
+	</script>
+</body>
+</html>
