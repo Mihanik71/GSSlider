@@ -20,9 +20,8 @@ function GSSlider(arr){
 		bg.onmouseup = end;
 	}else{
 		handle.addEventListener("mousedown", start, true);
-		bg.addEventListener("click", sliderClick, true);
-		handle.addEventListener("mouseup", end, true);
-		bg.addEventListener("mouseup", end, true);
+		el.addEventListener("click", sliderClick, true);
+		el.addEventListener("mouseup", end, true);
 	}
 	function addClass(classname, element){
 		var cn = element.className;
@@ -43,10 +42,10 @@ function GSSlider(arr){
 		if(new_x < point*((par.step)?par.step:1))
 			val = par.min;
 		else
-			if(new_x > sliderWidth-point)
-				val = par.max;
-			else
-				val = Math.round(new_x/(par.step*point))*((par.step)?par.step:1)+par.min;
+		if(new_x > sliderWidth-point)
+			val = par.max;
+		else
+			val = Math.round(new_x/(par.step*point))*((par.step)?par.step:1)+par.min;
 		if(value != undefined)
 			if(par.onUpdateValue != undefined && par.onUpdateValue({new_coor:new_x, old_value:value, new_value:val}) == false)
 				return;
@@ -58,13 +57,13 @@ function GSSlider(arr){
 		if(x < point*((par.step)?par.step:1))
 			left = -handleWidth/2;
 		else
-			if(x > sliderWidth-point*((par.step)?par.step:1))
-				left = (sliderWidth-handleWidth/2);
-			else
-				if(par.step == 0)
-					left = x;
-				else
-					left = Math.round(x/(par.step * point)) * par.step * point;
+		if(x > sliderWidth-point*((par.step)?par.step:1))
+			left = (sliderWidth-handleWidth/2);
+		else
+		if(par.step == 0)
+			left = x;
+		else
+			left = Math.round(x/(par.step * point)) * par.step * point;
 		updateValue(left);
 	}
 	function setValueFromVal(val){
@@ -72,10 +71,10 @@ function GSSlider(arr){
 		if(val <= par.min)
 			new_x = -handleWidth/2;
 		else
-			if(val >= par.max)
-				new_x = sliderWidth-handleWidth/2;
-			else
-				new_x = (val-par.min)*par.step*point;
+		if(val >= par.max)
+			new_x = sliderWidth-handleWidth/2;
+		else
+			new_x = (val-par.min)*par.step*point;
 		updateValue(new_x);
 	}
 	function getValue(){
@@ -84,7 +83,7 @@ function GSSlider(arr){
 	function sliderClick(e){
 		var x;
 		if(isIE){
-			if(event.srcElement != bg) return;
+			if(event.srcElement != el) return;
 			x = event.offsetX;
 		}else
 			x = e.pageX-sliderOffset;
@@ -95,19 +94,24 @@ function GSSlider(arr){
 	function start(e){
 		if(par.onStart != undefined && par.onStart({event:e, value:value}) == false)
 			return;
+		console.log('start');
 		if(isIE){
 			offsX = event.clientX-parseInt(handle.style.left);
-			bg.onmousemove = move;
+			el.onmousemove = move;
 		}else{
-			bg.addEventListener("mousemove", move, true);
+			el.addEventListener("mousemove", move, true);
 		}
 	}
 	function move(e){
 		var x;
+		console.log(e);
 		if(isIE)
 			x = event.clientX-offsX;
 		else
-			x = e.pageX-sliderOffset;
+			if(e.target == el || e.target == handle || e.target == bg)
+				x = e.pageX-sliderOffset;
+			else
+				el.removeEventListener("mousemove", move, true);
 		if(par.onMove != undefined && par.onMove({event:e, x:x}) == false)
 			return;
 		setValue(x);
@@ -116,9 +120,9 @@ function GSSlider(arr){
 		if(par.onEnd != undefined && par.onEnd({event:e, value:value}) == false)
 			return;
 		if(isIE){
-			bg.onmousemove = null;
+			el.onmousemove = null;
 		}else{
-			bg.removeEventListener("mousemove", move, true);
+			el.removeEventListener("mousemove", move, true);
 		}
 	}
 	function destroy(){
