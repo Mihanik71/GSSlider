@@ -165,14 +165,14 @@ function GSSlider(arr){
 	function initParams(arr){
 		var par ={};
 		if(arr.min > arr.max){
-			par.max = arr.min;
-			par.min = arr.max;
+			par.max = parseInt(arr.min);
+			par.min = parseInt(arr.max);
 		}else{
-			par.max = arr.max;
-			par.min = arr.min;
+			par.max = parseInt(arr.max);
+			par.min = parseInt(arr.min);
 		}
 		if(arr.step >= 0)
-			par.step = arr.step;
+			par.step = parseInt(arr.step);
 		else
 			par.step = 0;
 		if(document.getElementById(arr.id))
@@ -198,9 +198,9 @@ function GSSlider(arr){
 		else
 			par.onUpdateValue = undefined;
 		if(arr.hasOwnProperty('default'))
-			par.default = arr.default;
+			par.default = parseInt(arr.default);
 		else
-			par.default = par.min;
+			par.default = parseInt(par.min);
 		return par;
 	}
 	this.setValue = setValueFromVal;
