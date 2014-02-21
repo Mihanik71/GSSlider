@@ -80,6 +80,21 @@ function GSSlider(arr){
 	function getValue(){
 		return value;
 	}
+	function animate(x, element){
+		x = parseInt(x);
+		var left = parseInt(element.style.left);
+		if(left == x){
+			updateValue(x);
+		}else{
+			var new_left = left;
+			var update_x = (Math.abs(left-x) >= 50)?10:1;
+			new_left += (x > left)?update_x:-update_x;
+			element.style.left = new_left+'px';
+			window.setTimeout(function(){
+				animate(x, element);
+			}, 1);
+		}
+	}
 	function sliderClick(e){
 		var x;
 		if(isIE){
@@ -89,7 +104,7 @@ function GSSlider(arr){
 			x = e.pageX-sliderOffset;
 		if(par.onClick != undefined && par.onClick({event:e, new_x:x}) == false)
 			return;
-		setValue(x);
+		animate(x, handle);
 	}
 	function start(e){
 		if(par.onStart != undefined && par.onStart({event:e, value:value}) == false)
