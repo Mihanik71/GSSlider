@@ -1,13 +1,9 @@
 function GSSlider(arr){
+	/*Var*/
 	var offsX, tmp, sliderWidth, handleWidth, point, sliderOffset, par = {}, value, timer, range_n, el, bg,handle;
 	var bg_segment = {};
 	var d = document;
 	var isIE = d.all || window.opera;
-
-	par = initParams(arr);
-	createElements();
-	resize();
-	addEvents();
 
 	/*System*/
 	function addClass(classname, element){
@@ -18,7 +14,7 @@ function GSSlider(arr){
 			classname = ' '+classname;
 		element.className = cn+classname;
 	}
-	function removeClass(classname, element) {
+	function removeClass(classname, element){
 		var cn = element.className;
 		var rxp = new RegExp( "\\s?\\b"+classname+"\\b", "g" );
 		cn = cn.replace( rxp, '' );
@@ -27,47 +23,56 @@ function GSSlider(arr){
 
 	/*Private*/
 	function initParams(arr){
-		var par ={};
-		if(arr.min > arr.max){
-			par.max = arr.min;
-			par.min = arr.max;
-		}else{
-			par.max = arr.max;
-			par.min = arr.min;
+		if(arr.hasOwnProperty('min') && arr.hasOwnProperty('max')){
+			if(arr.min > arr.max){
+				par.max = parseInt(arr.min);
+				par.min = parseInt(arr.max);
+			}else{
+				par.max = parseInt(arr.max);
+				par.min = parseInt(arr.min);
+			}
+			range_n = par.max-par.min;
 		}
-		if(arr.step >= 0)
-			par.step = arr.step;
-		else
-			par.step = 0;
-		if(document.getElementById(arr.id))
-			par.id = arr.id;
+		if(arr.hasOwnProperty('step'))
+			if(arr.step >= 0)
+				par.step = parseInt(arr.step);
+			else
+				par.step = 0;
+		if(arr.hasOwnProperty('id'))
+			if(document.getElementById(arr.id))
+				par.id = arr.id;
 		if(arr.hasOwnProperty('onStart'))
 			par.onStart = arr.onStart;
 		else
-			par.onStart = undefined;
+			par.onStart = par.onStart || undefined;
 		if(arr.hasOwnProperty('onClick'))
 			par.onClick = arr.onClick;
 		else
-			par.onClick = undefined;
+			par.onClick = par.onClick || undefined;
 		if(arr.hasOwnProperty('onEnd'))
 			par.onEnd = arr.onEnd;
 		else
-			par.onEnd = undefined;
+			par.onEnd = par.onEnd || undefined;
 		if(arr.hasOwnProperty('onMove'))
 			par.onMove = arr.onMove;
 		else
-			par.onMove = undefined;
+			par.onMove = par.onMove || undefined;
 		if(arr.hasOwnProperty('onUpdateValue'))
 			par.onUpdateValue = arr.onUpdateValue;
 		else
-			par.onUpdateValue = undefined;
+			par.onUpdateValue = par.onUpdateValue || undefined;
 		if(arr.hasOwnProperty('default'))
 			par.default = arr.default;
 		else
-			par.default = par.min;
-		range_n = par.max-par.min;
-		el = d.getElementById(par.id);
-		return par;
+			par.default = par.default || par.min;
+		par.disable = false;
+		if(arr.hasOwnProperty('disable'))
+			if(arr.disable == true)
+				par.disable = true;
+		par.addSegments = false;
+		if(arr.hasOwnProperty('addSegments'))
+			if(arr.addSegments == true)
+				par.addSegments = true;
 	}
 	function updateValue(new_x){
 		var val;
@@ -115,35 +120,64 @@ function GSSlider(arr){
 		}
 	}
 	function createElements(){
-		bg = d.createElement('DIV');
-		bg.className = 'gsSlider_background';
-		el.appendChild(bg);
-		handle = d.createElement('DIV');
-		handle.className = 'gsSlider_handle';
-		el.appendChild(handle);
-		for(var i=0; i < range_n; i++){
-			bg_segment[i] = d.createElement('DIV');
-			var prefix = 'gsSlider_bg_segment';
-			var even =(i%2 == 0)?'even':'not_even';
-			bg_segment[i].className = prefix+' '+prefix+'_'+i+' '+prefix+'_'+even;
-			if(i == 0) bg_segment[i].className +=' '+prefix+'_start';
-			if(i == range_n-1) bg_segment[i].className +=' '+prefix+'_end';
-			bg.appendChild(bg_segment[i]);
+		if(el != d.getElementById(par.id)){
+			el = d.getElementById(par.id);
+			el.innerHTML = '';
 		}
+		addClass('gsSlider', el);
+		if(!bg){
+			bg = d.createElement('DIV');
+			bg.className = 'gsSlider_background';
+			el.appendChild(bg);
+		}
+		bg.innerHTML = '';
+		if(!handle){
+			handle = d.createElement('DIV');
+			handle.className = 'gsSlider_handle';
+			el.appendChild(handle);
+		}
+		if(par.addSegments)
+			for(var i=0; i < range_n; i++){
+				bg_segment[i] = d.createElement('DIV');
+				var prefix = 'gsSlider_bg_segment';
+				var even =(i%2 == 0)?'even':'not_even';
+				bg_segment[i].className = prefix+' '+prefix+'_'+i+' '+prefix+'_'+even;
+				if(i == 0) bg_segment[i].className +=' '+prefix+'_start';
+				if(i == range_n-1) bg_segment[i].className +=' '+prefix+'_end';
+				bg.appendChild(bg_segment[i]);
+			}
 	}
 	function addEvents(){
-		if(isIE){
-			handle.onmousedown = start;
-			bg.onclick = sliderClick;
-			handle.onmouseup = end;
-			bg.onmouseup = end;
+		if(par.disable == false){
+			if(isIE){
+				handle.onmousedown = start;
+				bg.onclick = sliderClick;
+				handle.onmouseup = end;
+				bg.onmouseup = end;
+			}else{
+				handle.addEventListener("mousedown", start, true);
+				el.addEventListener("click", sliderClick, true);
+				el.addEventListener("mouseup", end, true);
+				el.addEventListener("touchstart", start, true);
+				el.addEventListener("touchend", end, true);
+			}
+			removeClass('disable', el);
 		}else{
-			handle.addEventListener("mousedown", start, true);
-			el.addEventListener("click", sliderClick, true);
-			el.addEventListener("mouseup", end, true);
-			el.addEventListener("touchstart", start, true);
-			el.addEventListener("touchend", end, true);
+			addClass('disable', el);
+			if(isIE){
+				handle.onmousedown = null;
+				bg.onclick = null;
+				handle.onmouseup = null;
+				bg.onmouseup = null;
+			}else{
+				handle.removeEventListener("mousedown", start, true);
+				el.removeEventListener("click", sliderClick, true);
+				el.removeEventListener("mouseup", end, true);
+				el.removeEventListener("touchstart", start, true);
+				el.removeEventListener("touchend", end, true);
+			}
 		}
+
 	}
 
 	/*Events*/
@@ -169,7 +203,7 @@ function GSSlider(arr){
 			el.addEventListener("mouseout", out, true);
 			el.addEventListener("touchmove", start, true);
 		}
-		addClass('active',handle);
+		addClass('active', handle);
 	}
 	function out(e){
 		e = e || event;
@@ -196,10 +230,10 @@ function GSSlider(arr){
 			el.removeEventListener("mousemove", move, true);
 			el.removeEventListener("touchmove", start, true);
 		}
-		removeClass('active',handle);
+		removeClass('active', handle);
 	}
 
-	/*Public*/
+	/*To public*/
 	function destroy(){
 		el.removeChild(bg);
 		el.removeChild(handle);
@@ -214,17 +248,18 @@ function GSSlider(arr){
 		handleWidth = handle.offsetWidth;
 		point = (sliderWidth)/range_n;
 		handle.style.left = -handleWidth/2+'px';
-		addClass('gsSlider',el);
+		addClass('gsSlider', el);
 		sliderOffset = bg.offsetLeft;
 		tmp = bg.offsetParent;
 		while(tmp.tagName != 'BODY'){
 			sliderOffset += tmp.offsetLeft;
 			tmp = tmp.offsetParent;
 		}
-		for(var i=0; i < range_n; i++){
-			bg_segment[i].style.left = (i*par.step*point)+'px';
-			bg_segment[i].style.width = par.step*point+'px';
-		}
+		if(par.addSegments)
+			for(var i=0; i < range_n; i++){
+				bg_segment[i].style.left = (i*par.step*point)+'px';
+				bg_segment[i].style.width = par.step*point+'px';
+			}
 		setValueFromVal(value || par.default);
 	}
 	function getValue(){
@@ -241,12 +276,22 @@ function GSSlider(arr){
 			new_x = (val-par.min)*par.step*point;
 		setValue(new_x);
 	}
+	function update(arr){
+		initParams(arr);
+		createElements();
+		resize();
+		addEvents();
+	}
 
-	/*Global*/
+	/*Public*/
 	this.setValue = setValueFromVal;
 	this.getValue = getValue;
 	this.destroy = destroy;
 	this.resize = resize;
+	this.updateParams = update;
 	this.min = par.min;
 	this.max = par.max;
+
+	/*Code*/
+	update(arr);
 }
