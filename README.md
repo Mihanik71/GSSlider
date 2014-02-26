@@ -29,3 +29,13 @@ _Если в функции обработчике вернуть false, то т
 * **resize()** - обновляет размеры елементов слайдера
 
 ***
+# CSS классы
+* **.gsSlider_background** - фон
+* **.gsSlider_handle** - ползунок
+* **.gsSlider_bg_segment** - часть фона
+* **.gsSlider_bg_segment_even** - чётная часть фона
+* **.gsSlider_bg_segment_not_even** - нечётная часть фона
+* **.gsSlider_bg_segment_start** - первая часть фона
+* **.gsSlider_bg_segment_end** - последняя часть фона
+
+***
